@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +61,31 @@ public class CropController {
     response.put("farmId", existingFarm.getId());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  /**
+  * Get method of the application responsible for capturing all crops.
+  */
+  @GetMapping("/farms/{farmId}/crops")
+  public ResponseEntity<?> getAllCropsFromTheFarm(@PathVariable(value = "farmId") Integer farmId) {
+    Optional<Farm> farm = farmService.getFarmById(farmId);
+
+    if (farm.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Fazenda não encontrada!");
+    }
+
+    List<Crop> crops = cropService.getCropsByFarmId(farmId);
+
+    List<CropResponseDto> cropResponseDtos = crops.stream()
+        .map(crop -> new CropResponseDto(
+            crop.getId(),
+            crop.getName(),
+            crop.getPlantedArea(),
+            crop.getFarm().getId()
+        ))
+        .collect(Collectors.toList());
+
+    return ResponseEntity.status(HttpStatus.OK).body(cropResponseDtos);
   }
 
   /**

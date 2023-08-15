@@ -45,4 +45,8 @@ public class CropService {
   public Optional<Crop> getCropById(Integer id) {
     return cropRepository.findById(id);
   }
+
+  public List<Crop> getCropsByFarmId(Integer farmId) {
+    return cropRepository.findByFarmId(farmId);
+  }
 }
